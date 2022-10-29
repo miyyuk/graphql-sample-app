@@ -1,4 +1,4 @@
-# grqphql-sample-app
+# graphql-sample-app
 Photo sharing application with GraphQL, introduced in Learning GraphQL (O'Reilly book).
 
 # Learning GraphQL
