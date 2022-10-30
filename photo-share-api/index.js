@@ -2,6 +2,7 @@ const { ApolloServer } = require(`apollo-server-express`)
 const express = require(`express`)
 const expressPlayground = require(`graphql-playground-middleware-express`).default
 const { readFileSync }  = require(`fs`)
+const cors = require('cors')
 
 const { MongoClient } = require(`mongodb`)
 require(`dotenv`).config()
@@ -11,6 +12,7 @@ const resolvers = require(`./resolvers`)
 
 async function start() {
     const app = express()
+    app.use(cors());
 
     const MONGO_DB = process.env.DB_HOST
 
