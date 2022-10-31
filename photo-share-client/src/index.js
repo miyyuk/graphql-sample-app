@@ -8,7 +8,17 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
-const client = new ApolloClient({ uri: 'http://localhost:4000/graphql' })
+const client = new ApolloClient({
+  uri: 'http://localhost:4000/graphql',
+  request: operation => {
+    operation.setContext(context => ({
+      headers: {
+        ...context.headers,
+        authorization: localStorage.getItem('token')
+      }
+    }))
+  }
+})
 
 render(
   <ApolloProvider client={client}>
