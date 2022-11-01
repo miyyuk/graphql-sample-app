@@ -59,7 +59,7 @@ class AuthorizedUser extends Component {
     return (
       <Mutation mutation={GITHUB_AUTH_MUTATION}
         update={this.authorizationComplete}
-        refreshQueries={[{ query: ROOT_QUERY }]}
+        refetchQueries={[{ query: ROOT_QUERY }]}
       >
         {mutation => {
           this.githubAuthMutation = mutation
