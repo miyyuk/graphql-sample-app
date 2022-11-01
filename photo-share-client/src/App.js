@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom'
-import { gql } from 'apollo-boost';
+import { gql } from '@apollo/client';
 import Users from './Users';
 import AuthorizedUser from './AuthorizedUser'
 
