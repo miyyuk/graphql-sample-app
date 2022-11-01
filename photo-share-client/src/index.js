@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 import { ApolloProvider } from 'react-apollo';
 import ApolloClient, { InMemoryCache } from 'apollo-boost';
@@ -33,11 +33,13 @@ const client = new ApolloClient({
   }
 })
 
-render(
+const container = document.getElementById('root')
+const root = createRoot(container)
+
+root.render(
   <ApolloProvider client={client}>
     <App />
-  </ApolloProvider>,
-  document.getElementById('root')
+  </ApolloProvider>
 );
 
 // If you want to start measuring performance in your app, pass a function
