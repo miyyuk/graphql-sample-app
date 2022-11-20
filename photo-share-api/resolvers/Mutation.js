@@ -3,7 +3,7 @@ const fetch = require('node-fetch')
 require(`dotenv`).config()
 
 module.exports = {
-    async postPhoto(parent, args, { db, currentUser }) {
+    async postPhoto(parent, args, { db, currentUser, pubsub }) {
         if (!currentUser) {
             throw new Error(`only an authorized user can post a photo`)
         }
@@ -14,8 +14,10 @@ module.exports = {
             created: new Date()
         }
 
-        const { insertedIds } = await db.collection(`photos`).insert(newPhoto)
-        newPhoto.id = insertedIds[0]
+        const { insertedId } = await db.collection(`photos`).insertOne(newPhoto)
+        newPhoto.id = insertedId
+
+        pubsub.publish('photo-added', { newPhoto })
 
         return newPhoto
     },
@@ -82,7 +84,7 @@ module.exports = {
             githubToken: r.login.sha1
         }))
 
-        await db.collection(`users`).insert(users)
+        await db.collection(`users`).insertMany(users)
 
         return users
     }
