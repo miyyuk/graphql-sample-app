@@ -10,6 +10,12 @@ const resolvers = {
             subscribe: (parent, args, { pubsub }) => {
                 return pubsub.asyncIterator('photo-added')
             }
+        },
+
+        newUser: {
+            subscribe: (parent, args, { pubsub }) => {
+                return pubsub.asyncIterator('user-added')
+            }
         }
     },
     ...Type

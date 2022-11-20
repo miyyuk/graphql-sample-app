@@ -22,7 +22,7 @@ module.exports = {
         return newPhoto
     },
 
-    async githubAuth(parent, { code }, { db }) {
+    async githubAuth(parent, { code }, { db, pubsub }) {
         let {
             message,
             access_token,
@@ -54,6 +54,8 @@ module.exports = {
             throw new Error('db replace failed')
         }
 
+        pubsub.publish('user-added', { newUser: latestUserInfo })
+
         return { user: { ...latestUserInfo }, token: access_token }
     },
 
@@ -70,7 +72,7 @@ module.exports = {
         }
     },
 
-    addFakeUsers: async (root, { count }, { db }) => {
+    addFakeUsers: async (root, { count }, { db, pubsub }) => {
         var randomUserApi = `https://randomuser.me/api/?results=${count}`
 
         var { results } = await fetch(randomUserApi)
@@ -85,6 +87,13 @@ module.exports = {
         }))
 
         await db.collection(`users`).insertMany(users)
+        const newUsers = await db.collection('users')
+            .find()
+            .sort({ _id: -1 })
+            .limit(count)
+            .toArray()
+
+        newUsers.forEach(newUser => pubsub.publish('user-added', { newUser }))
 
         return users
     }
