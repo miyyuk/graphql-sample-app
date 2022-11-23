@@ -1,7 +1,10 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 
-import { ApolloClient, HttpLink, ApolloLink, ApolloProvider, InMemoryCache, concat } from '@apollo/client';
+import { ApolloClient, HttpLink, ApolloLink, ApolloProvider, InMemoryCache, split, concat } from '@apollo/client';
+import { getMainDefinition } from '@apollo/client/utilities';
+import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
+import { createClient } from 'graphql-ws';
 import { persistCache, LocalStorageWrapper } from 'apollo3-cache-persist';
 
 import './index.css';
@@ -20,7 +23,34 @@ if (localStorage['apollo-cache-persist']) {
   cache.restore(cacheData)
 }
 
-const httpLink = new HttpLink({ uri: 'http://localhost:4000/graphql' })
+const httpLink = new HttpLink({
+  uri: 'http://localhost:4000/graphql'
+});
+
+const wsLink = new GraphQLWsLink(createClient({
+  url: 'ws://localhost:4000/graphql',
+  connectionParams: {
+    authToken: localStorage.getItem('token'),
+  },
+
+}));
+
+// The split function takes three parameters:
+//
+// * A function that's called for each operation to execute
+// * The Link to use for an operation if the function returns a "truthy" value
+// * The Link to use for an operation if the function returns a "falsy" value
+const splitLink = split(
+  ({ query }) => {
+    const definition = getMainDefinition(query);
+    return (
+      definition.kind === 'OperationDefinition' &&
+      definition.operation === 'subscription'
+    );
+  },
+  wsLink,
+  httpLink,
+);
 
 const authMiddleware = new ApolloLink((operation, forward) => {
   operation.setContext(({ headers = {} })=> ({
@@ -35,7 +65,7 @@ const authMiddleware = new ApolloLink((operation, forward) => {
 
 const client = new ApolloClient({
   cache,
-  link: concat(authMiddleware, httpLink),
+  link: concat(authMiddleware, splitLink),
 })
 
 const container = document.getElementById('root')
