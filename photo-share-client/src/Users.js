@@ -12,21 +12,18 @@ const ADD_FAKE_USERS_MUTATION = gql`
   }
 `
 
-const updateUserCache = (cache, { data:{ addFakeUsers }}) => {
-  const data = cache.readQuery({ query: ROOT_QUERY })
-  const newData = {
-    ...data,
-    totalUsers: data.totalUsers + addFakeUsers.length,
-    allUsers: [
-      ...data.allUsers,
-      ...addFakeUsers,
-    ]
+const LISTEN_FOR_USERS = gql`
+  subscription {
+    newUser {
+      githubLogin
+      name
+      avatar
+    }
   }
-  cache.writeQuery({ query: ROOT_QUERY, data: newData })
-}
+`
 
 const Users = () => {
-  const { data, loading, refetch } = useQuery(ROOT_QUERY, {
+  const { data, loading, refetch, subscribeToMore } = useQuery(ROOT_QUERY, {
     fetchPolicy: "cache-and-network"
   });
 
@@ -36,14 +33,29 @@ const Users = () => {
     <UserList count={data.totalUsers}
       users={data.allUsers}
       refetchUsers={refetch}
+      subscribeToNewUser={() =>
+        subscribeToMore({
+          document: LISTEN_FOR_USERS,
+          updateQuery: (prev, { subscriptionData }) => {
+            if (!subscriptionData.data) return prev;
+            const newUser = subscriptionData.data.newUser
+
+            return Object.assign({}, prev, {
+              allUsers: [...prev.allUsers, newUser]
+            })
+          }
+        })
+      }
     />
   )
 }
 
-const UserList = ({ count, users, refetchUsers }) => {
-  const [addFakeUsers] = useMutation(ADD_FAKE_USERS_MUTATION, {
-    update: updateUserCache
-  });
+const UserList = ({ count, users, refetchUsers, subscribeToNewUser }) => {
+  const [addFakeUsers] = useMutation(ADD_FAKE_USERS_MUTATION);
+
+  React.useEffect(() => {
+    subscribeToNewUser();
+  }, [])
 
   return (
     <div>
