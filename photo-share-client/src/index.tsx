@@ -8,7 +8,6 @@ import { createClient } from 'graphql-ws';
 import { persistCache, LocalStorageWrapper } from 'apollo3-cache-persist';
 
 import './index.css';
-// @ts-expect-error TS(6142): Module './App' was resolved to '/Users/miyukano/mi... Remove this comment to see the full error message
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
@@ -74,9 +73,7 @@ const container = document.getElementById('root')
 const root = createRoot(container)
 
 root.render(
-  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   <ApolloProvider client={client}>
-    {/* @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message */}
     <App />
   </ApolloProvider>
 );
