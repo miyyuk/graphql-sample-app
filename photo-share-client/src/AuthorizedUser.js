@@ -18,7 +18,7 @@ const Me = ({ logout, requestCode, signingIn }) => {
 
   if (loading) return <p>loading...</p>;
 
-  if (data.me) {
+  if (data?.me) {
     return (
       <CurrentUser {...data.me} logout={logout} />
     )
