@@ -61,8 +61,8 @@ const AuthorizedUser = (props: any) => {
   }
 
   const requestCode = () => {
-    var clientID = process.env.REACT_APP_CLIENT_ID
-    window.location = `https://github.com/login/oauth/authorize?client_id=${clientID}&scope=user`
+    var clientID = process.env.REACT_APP_CLIENT_ID;
+    (window as Window).location = `https://github.com/login/oauth/authorize?client_id=${clientID}&scope=user`;
   }
 
   const [githubAuth] = useMutation(GITHUB_AUTH_MUTATION, {
